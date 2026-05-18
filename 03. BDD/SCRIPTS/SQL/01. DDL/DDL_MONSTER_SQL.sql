@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     15/5/2026 10:09:37                           */
+/* Created on:     18/5/2026 9:23:19                            */
 /*==============================================================*/
 
 
@@ -472,15 +472,6 @@ go
 IF EXISTS (SELECT 1
             FROM  SYSINDEXES
            WHERE  ID    = OBJECT_ID('XEUSU_USUAR')
-            AND   NAME  = 'XR_PEEMP_XEUSU_FK'
-            AND   INDID > 0
-            AND   INDID < 255)
-   DROP INDEX XEUSU_USUAR.XR_PEEMP_XEUSU_FK
-go
-
-IF EXISTS (SELECT 1
-            FROM  SYSINDEXES
-           WHERE  ID    = OBJECT_ID('XEUSU_USUAR')
             AND   NAME  = 'XR_XEEST_XEUSU_FK'
             AND   INDID > 0
             AND   INDID < 255)
@@ -572,8 +563,8 @@ CREATE TABLE FEDCO_DETCOM (
    FEDCO_CODIGO         INT                  NOT NULL,
    FECFA_CODIGO         INT                  NOT NULL,
    FEDCO_CANTIDA        INT                  NOT NULL,
-   FEDCO_PRECIO         MONEY                NOT NULL,
-   FEDCO_TOTIMP         MONEY                NULL,
+   FEDCO_PRECIO         FLOAT(9)             NOT NULL,
+   FEDCO_TOTIMP         FLOAT(9)             NULL,
    CONSTRAINT PK_FEDCO_DETCOM PRIMARY KEY NONCLUSTERED (FEDCO_CODIGO)
 )
 go
@@ -657,7 +648,7 @@ CREATE TABLE GEEMPPRO_EMPPRO (
    PEEMP_CODIGO         CHAR(6)              NOT NULL,
    GEPROY_CODIGO        CHAR(8)              NOT NULL,
    FEDCO_CODIGO         INT                  NOT NULL,
-   GEEMPPRO_HTRABA      NUMERIC(3)           NOT NULL,
+   GEEMPPRO_HTRABA      NUMERIC(3,0)         NOT NULL,
    GEEMPPRO_VHORA       NUMERIC(7,2)         NOT NULL,
    CONSTRAINT PK_GEEMPPRO_EMPPRO PRIMARY KEY NONCLUSTERED (PEEMP_CODIGO, GEPROY_CODIGO, FEDCO_CODIGO)
 )
@@ -1021,7 +1012,7 @@ CREATE TABLE XEOXP_OPCPE (
    XEPER_CODIGO         CHAR(8)              NOT NULL,
    XEOXP_FECASI         DATETIME             NOT NULL,
    XEOXP_FECRET         DATETIME             NULL,
-   CONSTRAINT PK_XEOXP_OPCPE PRIMARY KEY NONCLUSTERED (XEOPC_CODIGO, XEPER_CODIGO, XEOXP_FECASI)
+   CONSTRAINT PK_XEOXP_OPCPE PRIMARY KEY NONCLUSTERED (XEOPC_CODIGO, XEPER_CODIGO)
 )
 go
 
@@ -1117,13 +1108,13 @@ go
 /* Table: XEUSU_USUAR                                           */
 /*==============================================================*/
 CREATE TABLE XEUSU_USUAR (
-   XEUSU_PASWD          VARCHAR(16)          NOT NULL,
-   XEEST_CODIGO         CHAR(1)              NOT NULL,
    PEEMP_CODIGO         CHAR(6)              NOT NULL,
+   XEEST_CODIGO         CHAR(1)              NOT NULL,
+   XEUSU_PASWD          VARCHAR(16)          NOT NULL,
    XEUSU_FECCRE         DATETIME             NOT NULL,
    XEUSU_FECMOD         DATETIME             NOT NULL,
    XEUSU_PIEFIR         VARCHAR(100)         NOT NULL,
-   CONSTRAINT PK_XEUSU_USUAR PRIMARY KEY NONCLUSTERED (XEUSU_PASWD)
+   CONSTRAINT PK_XEUSU_USUAR PRIMARY KEY NONCLUSTERED (PEEMP_CODIGO)
 )
 go
 
@@ -1153,22 +1144,14 @@ XEEST_CODIGO ASC
 go
 
 /*==============================================================*/
-/* Index: XR_PEEMP_XEUSU_FK                                     */
-/*==============================================================*/
-CREATE INDEX XR_PEEMP_XEUSU_FK ON XEUSU_USUAR (
-PEEMP_CODIGO ASC
-)
-go
-
-/*==============================================================*/
 /* Table: XEUXP_USUPE                                           */
 /*==============================================================*/
 CREATE TABLE XEUXP_USUPE (
-   XEUSU_PASWD          VARCHAR(16)          NOT NULL,
+   PEEMP_CODIGO         CHAR(6)              NOT NULL,
    XEPER_CODIGO         CHAR(8)              NOT NULL,
    XEUXP_FECASI         DATETIME             NOT NULL,
    XEUXP_FECRET         DATETIME             NULL,
-   CONSTRAINT PK_XEUXP_USUPE PRIMARY KEY NONCLUSTERED (XEUSU_PASWD, XEPER_CODIGO, XEUXP_FECASI)
+   CONSTRAINT PK_XEUXP_USUPE PRIMARY KEY NONCLUSTERED (PEEMP_CODIGO, XEPER_CODIGO)
 )
 go
 
@@ -1201,7 +1184,7 @@ go
 /* Index: XR_XEUSU_XEUXP_FK                                     */
 /*==============================================================*/
 CREATE INDEX XR_XEUSU_XEUXP_FK ON XEUXP_USUPE (
-XEUSU_PASWD ASC
+PEEMP_CODIGO ASC
 )
 go
 
@@ -1316,7 +1299,7 @@ ALTER TABLE XEUXP_USUPE
 go
 
 ALTER TABLE XEUXP_USUPE
-   ADD CONSTRAINT FK_XEUXP_US_XR_XEUSU__XEUSU_US FOREIGN KEY (XEUSU_PASWD)
-      REFERENCES XEUSU_USUAR (XEUSU_PASWD)
+   ADD CONSTRAINT FK_XEUXP_US_XR_XEUSU__XEUSU_US FOREIGN KEY (PEEMP_CODIGO)
+      REFERENCES XEUSU_USUAR (PEEMP_CODIGO)
 go
 
